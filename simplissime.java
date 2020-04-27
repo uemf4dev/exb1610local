@@ -13,8 +13,6 @@ public class simplissime {
 	private static String jdbcMachine = "" ;
 	private static String jdbcDatabase = "" ;
 	private static String jdbcUser = "" ;
-
-
 	
 	private static String jdbcUrl = "jdbc:postgresql://" + jdbcMachine + ":5432/" + jdbcDatabase + "?user=" + jdbcUser + "&password=" + jdbcPass + "&sslmode=require" ;
 
@@ -31,7 +29,7 @@ public class simplissime {
 			System.out.println( "\n\nAjout d'un enregistrement dans la base\n" ) ;
 			display = insertVille ( "FES", 28000 ) ;
 			System.out.println( display ) ;
-			System.out.println( "\n\nNouvel état de la base\n" ) ;
+			System.out.println( "\n\nNouvel etat de la base\n" ) ;
 			display = list () ;
 			System.out.println( display ) ;
 		}
@@ -105,6 +103,7 @@ public class simplissime {
 				result = result + "/" + codePostal ;
                 String name = resultSet.getString("Nom");
 				result = result + "/" + name ;
+		result = result + "\n" ;
                 // Timestamp createdDate = resultSet.getTimestamp("CREATED_DATE");
             }
 
