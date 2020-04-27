@@ -13,15 +13,30 @@ import java.net.URISyntaxException;
 import java.sql.*;
 // import java.sql.ResultSet;
 
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
+
+
 public class txnscript
 {
 	
-	// coller ici les 4 lignes obtenues sur https://jdbc4uemf.herokuapp.com/hello?pass=xxx
+	// coller ici les 4 lignes obtenues sur https://jdbc4uemf.herokuapp.com/admin?pass=xxx
+/*
 	private static String jdbcPass = "" ;
 	private static String jdbcMachine = "" ;
 	private static String jdbcDatabase = "" ;
 	private static String jdbcUser = "" ;
-	
+*/
+
+private static String jdbcPass = "a1b7022433ceb48f90e2759a4319f73d3af2bbdee4f214477c90588caf8ae71f" ;
+private static String jdbcMachine = "ec2-54-246-121-32.eu-west-1.compute.amazonaws.com" ;
+private static String jdbcDatabase = "d6v79l0erm7t35" ;
+private static String jdbcUser = "rxfftsrckuwnsp" ;
+
 	private static String jdbcUrl = "jdbc:postgresql://" + jdbcMachine + ":5432/" + jdbcDatabase + "?user=" + jdbcUser + "&password=" + jdbcPass + "&sslmode=require" ;
 	private static String saut_de_ligne = "\n" ;
 
@@ -161,6 +176,62 @@ public class txnscript
 	result = result + saut_de_ligne ;		
 	return result ;
     }
+	
+	public static boolean loadDml ( String filePath)
+	{
+		return playSqlInsert ( readDml ( filePath ) ) ;
+	}
+	
+    public static boolean playSqlInsert (String sql)
+    {
+		
+		boolean result = true ;
+
+		try
+		{
+            PreparedStatement pstmt = connection.prepareStatement(sql) ;
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+			result = false ;
+        }
+		
+		return result ;
+    }
+
+    public static boolean deleteTableContent (String tableName)
+    {
+		
+		boolean result = true ;
+		String sql = "DELETE FROM " + tableName + ";" ;
+
+		try
+		{
+            PreparedStatement pstmt = connection.prepareStatement(sql) ;
+            pstmt.execute();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+			result = false ;
+        }
+		return result ;
+    }
+    
+	// readLineByLineJava8
+	private static String readDml (String filePath) 
+	{
+		StringBuilder contentBuilder = new StringBuilder();
+		try (Stream<String> stream = Files.lines( Paths.get(filePath), StandardCharsets.UTF_8)) 
+		{
+			stream.forEach(s -> contentBuilder.append(s).append("\n"));
+		}
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
+		return contentBuilder.toString();
+	}
+
+	
 // ************************************** END OF SIMPLISSIME ***************************************
 
   
