@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.sql.PreparedStatement ;
 import java.sql.ResultSet;
 
-public class simplissime {
+public class simplissimeLocal {
 
 	// coller ici les 4 lignes obtenues sur https://jdbc4uemf.herokuapp.com/hello?pass=xxx
 	private static String jdbcPass = "" ;
