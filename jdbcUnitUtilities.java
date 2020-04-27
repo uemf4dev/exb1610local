@@ -21,30 +21,16 @@ import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 
-public class txnscript
+public class jdbcUnitUtilities
 {
-	
-	// coller ici les 4 lignes obtenues sur https://jdbc4uemf.herokuapp.com/admin?pass=xxx
-/*
-	private static String jdbcPass = "" ;
-	private static String jdbcMachine = "" ;
-	private static String jdbcDatabase = "" ;
-	private static String jdbcUser = "" ;
-*/
 
-private static String jdbcPass = "a1b7022433ceb48f90e2759a4319f73d3af2bbdee4f214477c90588caf8ae71f" ;
-private static String jdbcMachine = "ec2-54-246-121-32.eu-west-1.compute.amazonaws.com" ;
-private static String jdbcDatabase = "d6v79l0erm7t35" ;
-private static String jdbcUser = "rxfftsrckuwnsp" ;
-
-	private static String jdbcUrl = "jdbc:postgresql://" + jdbcMachine + ":5432/" + jdbcDatabase + "?user=" + jdbcUser + "&password=" + jdbcPass + "&sslmode=require" ;
+	private static String jdbcUrl = "" ;
 	private static String saut_de_ligne = "\n" ;
 
 	static Connection connection = null ;
 	static Statement stmt = null ;
-	// private static insaLogger logger = insaLogger.getLogger(txnscript.class);
-	
-    private txnscript()
+
+    private jdbcUnitUtilities( String jdbcUrl )
     {
 	// recuperer la JDBC URL
 	try {
@@ -60,13 +46,8 @@ private static String jdbcUser = "rxfftsrckuwnsp" ;
 
     }   
 
-	public static String getJdbcUrl ()
-	{
-		return jdbcUrl ;
-	}
-
-    public static txnscript getTxnscript() {
-        return new txnscript();
+    public static jdbcUnitUtilities getJdbcUnitUtilities( String jdbcUrl ) {
+        return new jdbcUnitUtilities ( jdbcUrl );
     }
 	
     public static boolean check()
@@ -119,61 +100,58 @@ private static String jdbcUser = "rxfftsrckuwnsp" ;
     }
 
 
-
-    public static String list()
-    {
-        // String sql = "INSERT INTO Villes (nom, code_postal) VALUES(?,?)";
-	String result = "" ;
-		
-	String sql = "SELECT * FROM Villes";
-
-	try
+	public static boolean loadDml ( String filePath)
 	{
-            PreparedStatement preparedStatement = connection.prepareStatement(sql) ;
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            while (resultSet.next())
-	    {
-                // Integer id = resultSet.getInt("ID");
-                Integer codePostal = resultSet.getInt("code_postal");
-				result = result + "/" + codePostal ;
-                String name = resultSet.getString("Nom");
-				result = result + "/" + name ;
-		result = result + saut_de_ligne ;
-                // Timestamp createdDate = resultSet.getTimestamp("CREATED_DATE");
-            }
-        } catch (SQLException e) {
-            System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-	    
-	return result ;
-    }
+		return playSqlInsert ( readDml ( filePath ) ) ;
+	}
 	
-	
-
-    public static String insertVille (String nom, Integer codePostal)
+    public static boolean playSqlInsert (String sql)
     {
-        String result = "" ;
 		
-	String sql = "INSERT INTO Villes (nom, code_postal) VALUES(?,?)" ;
+		boolean result = true ;
 
-	try
-	{
+		try
+		{
             PreparedStatement pstmt = connection.prepareStatement(sql) ;
-            pstmt.setString(1, nom);
-            pstmt.setDouble(2, codePostal);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+			result = false ;
         }
 		
-	result = result + codePostal ;
-	result = result + "/" + nom ;
-	result = result + saut_de_ligne ;		
-	return result ;
+		return result ;
     }
-	
+
+    public static boolean deleteTableContent (String tableName)
+    {
+		
+		boolean result = true ;
+		String sql = "DELETE FROM " + tableName + ";" ;
+
+		try
+		{
+            PreparedStatement pstmt = connection.prepareStatement(sql) ;
+            pstmt.execute();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+			result = false ;
+        }
+		return result ;
+    }
+    
+	// readLineByLineJava8
+	private static String readDml (String filePath) 
+	{
+		StringBuilder contentBuilder = new StringBuilder();
+		try (Stream<String> stream = Files.lines( Paths.get(filePath), StandardCharsets.UTF_8)) 
+		{
+			stream.forEach(s -> contentBuilder.append(s).append("\n"));
+		}
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
+		return contentBuilder.toString();
+	}
   
 }
