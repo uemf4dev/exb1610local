@@ -32,31 +32,33 @@ public class txnscript
 	private static String jdbcUser = "" ;
 */
 
-private static String jdbcPass = "a1b7022433ceb48f90e2759a4319f73d3af2bbdee4f214477c90588caf8ae71f" ;
-private static String jdbcMachine = "ec2-54-246-121-32.eu-west-1.compute.amazonaws.com" ;
-private static String jdbcDatabase = "d6v79l0erm7t35" ;
-private static String jdbcUser = "rxfftsrckuwnsp" ;
+	private static String jdbcPass = "a1b7022433ceb48f90e2759a4319f73d3af2bbdee4f214477c90588caf8ae71f" ;
+	private static String jdbcMachine = "ec2-54-246-121-32.eu-west-1.compute.amazonaws.com" ;
+	private static String jdbcDatabase = "d6v79l0erm7t35" ;
+	private static String jdbcUser = "rxfftsrckuwnsp" ;
 
 	private static String jdbcUrl = "jdbc:postgresql://" + jdbcMachine + ":5432/" + jdbcDatabase + "?user=" + jdbcUser + "&password=" + jdbcPass + "&sslmode=require" ;
 	private static String saut_de_ligne = "\n" ;
 
 	static Connection connection = null ;
 	static Statement stmt = null ;
+	static PreparedStatement pstmt = null ;
+	static ResultSet resultSet = null ;
 	// private static insaLogger logger = insaLogger.getLogger(txnscript.class);
 	
     private txnscript()
     {
-	// recuperer la JDBC URL
-	try {
-		// jdbcUrl = System.getenv("JDBC_DATABASE_URL");
-		connection = DriverManager.getConnection(jdbcUrl);
-	}
-	catch (Exception e)
-	{
-		// logger.error ( "JDBC_DATABASE_URL : " + jdbcUrl ) ;
-		
-	}   
-	// ouvrir une connection
+		// recuperer la JDBC URL
+		try
+		{
+			// jdbcUrl = System.getenv("JDBC_DATABASE_URL");
+			connection = DriverManager.getConnection(jdbcUrl);
+		}
+		catch (Exception e)
+		{
+			// logger.error ( "JDBC_DATABASE_URL : " + jdbcUrl ) ;
+			
+		}   
 
     }   
 
@@ -74,106 +76,235 @@ private static String jdbcUser = "rxfftsrckuwnsp" ;
         boolean result = false ;
 		StringBuilder out = new StringBuilder() ;
 		
-	// https://docs.oracle.com/javase/8/docs/api/java/sql/package-summary.html#package.description
+		// https://docs.oracle.com/javase/8/docs/api/java/sql/package-summary.html#package.description
         // auto java.sql.Driver discovery -- no longer need to load a java.sql.Driver class via Class.forName
 
         // register JDBC driver, optional since java 1.6
-		
-	if ( jdbcUrl.isEmpty() )
-	{
-		out.append("<p>Le mot de passe pour accéder à la base est vide. Connectez-vous à https://jdbc4uemf.herokuapp.com/hello?pass=xxx pour avoir les 4 paramètres de connexion de VOTRE base de données.</p>" ) ;
-	}
-	
-	// vérifier dispo de la library postgreSQL
-        try
-	{
-            Class.forName("org.postgresql.Driver");
-        }
-	catch (ClassNotFoundException e)
-	{
-            out.append("<p>La bibliothèque PostgreSQL est absente !</p>");
-            e.printStackTrace();
-        }
-
-        // auto close connection
-        /* try (Connection conn = DriverManager.getConnection(
-                "jdbc:postgresql://127.0.0.1:5432/test", "postgres", "password")) { */
-					
-	try
-	{
-		Connection conn = DriverManager.getConnection( jdbcUrl );
-		if (conn != null)
+		if ( jdbcUrl.isEmpty() )
 		{
-			out.append("<p>Connected to the database!</p>\n");
-			result = true ;				
-		} else {
-			out.append("<p>Failed to make connection!</p>");
+			out.append("<p>Le mot de passe pour accéder à la base est vide. Connectez-vous à https://jdbc4uemf.herokuapp.com/hello?pass=xxx pour avoir les 4 paramètres de connexion de VOTRE base de données.</p>" ) ;
 		}
-        } catch (SQLException e) {
-            System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 		
-	return result ;
+		// vérifier dispo de la library postgreSQL
+		try
+		{
+				Class.forName("org.postgresql.Driver");
+			}
+		catch (ClassNotFoundException e)
+		{
+				out.append("<p>La bibliothèque PostgreSQL est absente !</p>");
+				e.printStackTrace();
+		}
+
+					
+		try
+		{
+			Connection conn = DriverManager.getConnection( jdbcUrl );
+			if (conn != null)
+			{
+				out.append("<p>Connected to the database!</p>\n");
+				result = true ;				
+			} else {
+				out.append("<p>Failed to make connection!</p>");
+			}
+		} catch (SQLException e) {
+			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+			
+		return result ;
     }
 
+	
+    public static String insertVille (String nom, Integer codePostal)
+    {
+        String result = "" ;
+		
+		String sql = "INSERT INTO Villes (nom, code_postal) VALUES(?,?)" ;
 
-
+		try
+		{
+				PreparedStatement pstmt = connection.prepareStatement(sql) ;
+				pstmt.setString(1, nom);
+				pstmt.setDouble(2, codePostal);
+				pstmt.executeUpdate();
+		}
+		catch (SQLException e)
+		{
+			System.out.println(e.getMessage());
+		}
+			
+		result = result + codePostal ;
+		result = result + "/" + nom ;
+		result = result + saut_de_ligne ;		
+		return result ;
+    }
+	
     public static String list()
     {
-        // String sql = "INSERT INTO Villes (nom, code_postal) VALUES(?,?)";
-	String result = "" ;
-		
-	String sql = "SELECT * FROM Villes";
+		String result = "" ;
+			
+		String sql = "SELECT * FROM Villes";
 
-	try
-	{
-            PreparedStatement preparedStatement = connection.prepareStatement(sql) ;
-            ResultSet resultSet = preparedStatement.executeQuery();
+		try
+		{
+			PreparedStatement preparedStatement = connection.prepareStatement(sql) ;
+			resultSet = preparedStatement.executeQuery();
 
-            while (resultSet.next())
-	    {
-                // Integer id = resultSet.getInt("ID");
-                Integer codePostal = resultSet.getInt("code_postal");
+			while (resultSet.next())
+			{
+				// Integer id = resultSet.getInt("ID");
+				Integer codePostal = resultSet.getInt("code_postal");
 				result = result + "/" + codePostal ;
-                String name = resultSet.getString("Nom");
+				String name = resultSet.getString("Nom");
 				result = result + "/" + name ;
-		result = result + saut_de_ligne ;
-                // Timestamp createdDate = resultSet.getTimestamp("CREATED_DATE");
-            }
+				result = result + saut_de_ligne ;
+				// Timestamp createdDate = resultSet.getTimestamp("CREATED_DATE");
+			}
         } catch (SQLException e) {
             System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
         }
 	    
-	return result ;
+		return result ;
     }
-	
-	
 
-    public static String insertVille (String nom, Integer codePostal)
+
+    public static String searchByCodePostal(Integer searchedCodePostal)
+    {
+		String result = "" ;
+			
+		// String sql = "SELECT * FROM Villes WHERE ID = ?" ;
+		String sql = "SELECT * FROM Villes WHERE code_postal = ?" ;
+
+		try
+		{
+			PreparedStatement preparedStatement = connection.prepareStatement(sql) ;
+			preparedStatement.setInt(1, searchedCodePostal);
+			ResultSet resultSet = preparedStatement.executeQuery();
+
+			while (resultSet.next())
+			{
+				Integer id = resultSet.getInt("id");
+				result = result + "/" + id ;
+
+				Integer codePostal = resultSet.getInt("code_postal");
+				result = result + "/" + codePostal ;
+				String name = resultSet.getString("Nom");
+				result = result + "/" + name ;
+				result = result + saut_de_ligne ;
+			}
+        } catch (SQLException e) {
+            System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+	    
+		return result ;
+    }
+
+	
+	
+    public static String updateVille (Integer id, String nom, Integer codePostal)
     {
         String result = "" ;
 		
-	String sql = "INSERT INTO Villes (nom, code_postal) VALUES(?,?)" ;
+		String sql = "UPDATE Villes SET nom = ?, code_postal = ? WHERE id = ?" ;
 
-	try
-	{
-            PreparedStatement pstmt = connection.prepareStatement(sql) ;
-            pstmt.setString(1, nom);
-            pstmt.setDouble(2, codePostal);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-		
-	result = result + codePostal ;
-	result = result + "/" + nom ;
-	result = result + saut_de_ligne ;		
-	return result ;
+		try
+		{
+				PreparedStatement pstmt = connection.prepareStatement(sql) ;
+				pstmt.setString(1, nom);
+				pstmt.setDouble(2, codePostal);
+				pstmt.setInt(3, id);
+				pstmt.executeUpdate();
+		}
+		catch (SQLException e)
+		{
+			System.out.println(e.getMessage());
+		}
+			
+		result = result + codePostal ;
+		result = result + "/" + nom ;
+		result = result + saut_de_ligne ;		
+		return result ;
     }
 	
-  
+
+	
+	
+    public static String close()
+    {
+		String result = "" ;
+		boolean isClotureOK = true ;
+	
+		try
+		{
+			if(resultSet!=null)
+			{
+				resultSet.close();
+				resultSet=null;
+			}
+		}
+		catch (SQLException e)
+		{
+			isClotureOK = false ;
+			e.printStackTrace();
+		}
+		
+		try
+		{
+			if(stmt!=null)
+			{
+				stmt.close();
+				stmt=null;
+			}
+		}
+		catch (SQLException e)
+		{
+			isClotureOK = false ;
+			e.printStackTrace();
+		}
+		
+		try
+		{
+			if(pstmt!=null)
+			{
+				pstmt.close();
+				pstmt=null;
+			}
+		}
+		catch (SQLException e)
+		{
+			isClotureOK = false ;
+			e.printStackTrace();
+		}
+
+		try
+		{
+			if(connection!=null)
+			{
+				connection.close();
+				connection=null;
+			}
+		}
+		catch (SQLException e)
+		{
+			isClotureOK = false ;
+			e.printStackTrace();
+		}
+
+		if ( isClotureOK == true )
+		{
+			result = "Cloture objets JDBC OK" ;
+		}
+		else
+		{
+			result = "Cloture objets JDBC KO" ;
+		}
+
+		return result ;
+	}
 }
