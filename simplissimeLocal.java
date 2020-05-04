@@ -1,21 +1,14 @@
 // package com.mkyong.jdbc;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.PreparedStatement ;
-import java.sql.ResultSet;
-
 public class simplissimeLocal {
 
-
-	private static txnscript txn = txnscript.getTxnscript() ;
+	private static txnscript txn = null ;
 
     public static void main(String[] args) {
 
 		String display = "" ;
 		
-		
+		txn = txnscript.getTxnscript() ;
 		boolean isOk = txn.check() ;
 		if ( isOk )
 		{
