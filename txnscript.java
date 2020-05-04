@@ -21,11 +21,18 @@ public class txnscript
 {
 	
 	// coller ici les 4 lignes obtenues sur https://jdbc4uemf.herokuapp.com/admin?pass=xxx
+/*
 	private static String jdbcPass = "" ;
 	private static String jdbcMachine = "" ;
 	private static String jdbcDatabase = "" ;
 	private static String jdbcUser = "" ;
-
+*/
+	private static String jdbcPass = "a1b7022433ceb48f90e2759a4319f73d3af2bbdee4f214477c90588caf8ae71f" ;
+	private static String jdbcMachine = "ec2-54-246-121-32.eu-west-1.compute.amazonaws.com" ;
+	private static String jdbcDatabase = "d6v79l0erm7t35" ;
+	private static String jdbcUser = "rxfftsrckuwnsp" ;
+	
+	
 	private static String jdbcUrl = "jdbc:postgresql://" + jdbcMachine + ":5432/" + jdbcDatabase + "?user=" + jdbcUser + "&password=" + jdbcPass + "&sslmode=require" ;
 	private static String saut_de_ligne = "\n" ;
 
@@ -143,10 +150,11 @@ public class txnscript
 
 			while (resultSet.next())
 			{
-				// Integer id = resultSet.getInt("ID");
+				Integer id = resultSet.getInt("id");
+				result = result + "/" + id ;
 				Integer codePostal = resultSet.getInt("code_postal");
 				result = result + "/" + codePostal ;
-				String name = resultSet.getString("Nom");
+				String name = resultSet.getString("nom");
 				result = result + "/" + name ;
 				result = result + saut_de_ligne ;
 				// Timestamp createdDate = resultSet.getTimestamp("CREATED_DATE");
