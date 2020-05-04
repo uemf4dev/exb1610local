@@ -4,7 +4,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.ParseException;
 
-public class simplissimeLocal {
+public class simplissimeCmdline {
 
 	private static txnscript txn = null ;
 
@@ -15,10 +15,11 @@ public class simplissimeLocal {
             Options opt = new Options();
 
             opt.addOption("h", false, "Aide de cette application en mode ligne de commande");
-            opt.addOption("c", false, "[C]rud : ajouter une ville avec le nom et le code postal");
+            opt.addOption("c", false, "[C]rud : ajouter une ville avec le nom et le code postal (nom, code postal)");
             opt.addOption("r", false, "c[R]ud : retrouver une ville en fonction d'un parametre (id, nom, code postal)");
             opt.addOption("u", false, "cr[U]d : mettre a jour une ville avec l'id, le nom et le code postal > simplissimeLocal -u -id 21 -nom MARRAKECH -cp 40160");
             opt.addOption("d", false, "cru[D] : effacer une ville en fonction du parametre fourni (id, nom, code postal)");
+            opt.addOption("l", false, "lister tous les enregistrements de la table villes");
             opt.addOption("nom", true, "nom de la ville" );
             opt.addOption("cp", true, "code postal de la ville" );
             opt.addOption("id", true, "identifiant de la ville" );
@@ -26,11 +27,12 @@ public class simplissimeLocal {
             DefaultParser parser = new DefaultParser();
             CommandLine cl = parser.parse(opt, args);
 
+			// afficher une aide qui documente chaque option
+			// java -cp ".\postgresql-42.2.5.jar;commons-cli-1.4.jar;." simplissimeLocal -h
             if ( cl.hasOption('h') ) {
                 HelpFormatter f = new HelpFormatter();
                 f.printHelp("Aide de simplissime", opt);
             }
-
 
 			String display = "" ;
 			txn = txnscript.getTxnscript() ;
@@ -47,9 +49,17 @@ public class simplissimeLocal {
 					display = txn.updateVille ( id, nom, cp ) ;
 					System.out.println( display ) ;
             }
+
+			// java -cp ".\postgresql-42.2.5.jar;commons-cli-1.4.jar;." simplissimeLocal -l
+            if ( cl.hasOption('l') )
+			{
+					System.out.println( "\n\nEtat initial de la base\n" ) ;
+					display = txn.list () ;
+					System.out.println( display ) ;
+            }
             else
 			{
-
+				// pot-pourri de méthodes du txnScript
 				boolean isOk = txn.check() ;
 				if ( isOk )
 				{
@@ -85,13 +95,10 @@ public class simplissimeLocal {
 					display = txn.close() ;
 					System.out.println( display ) ;
 				}
-
-
             }
         }
         catch (ParseException e) {
             e.printStackTrace();
         }
-
 	}
 }
