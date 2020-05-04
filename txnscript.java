@@ -176,7 +176,6 @@ public class txnscript
     {
 		String result = "" ;
 			
-		// String sql = "SELECT * FROM Villes WHERE ID = ?" ;
 		String sql = "SELECT * FROM Villes WHERE code_postal = ?" ;
 
 		try
@@ -189,10 +188,9 @@ public class txnscript
 			{
 				Integer id = resultSet.getInt("id");
 				result = result + "/" + id ;
-
 				Integer codePostal = resultSet.getInt("code_postal");
 				result = result + "/" + codePostal ;
-				String name = resultSet.getString("Nom");
+				String name = resultSet.getString("nom");
 				result = result + "/" + name ;
 				result = result + saut_de_ligne ;
 			}
@@ -226,7 +224,8 @@ public class txnscript
 			System.out.println(e.getMessage());
 		}
 			
-		result = result + codePostal ;
+		result = result + id ;
+		result = result + "/" + codePostal ;
 		result = result + "/" + nom ;
 		result = result + saut_de_ligne ;		
 		return result ;
