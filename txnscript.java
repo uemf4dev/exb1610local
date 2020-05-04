@@ -1,7 +1,5 @@
 // for more information, please visit : http://prodageo.insa-rouen.fr/wiki/pmwiki.php?n=FilRouge.CoderTransactionScript
 
-// package lib ;
-
 import java.util.Date;
 
 // import libinsa.txnscriptUtil ;
@@ -13,34 +11,25 @@ import java.net.URISyntaxException;
 import java.sql.*;
 // import java.sql.ResultSet;
 
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
-
 public class txnscript
 {
 	
 	// coller ici les 4 lignes obtenues sur https://jdbc4uemf.herokuapp.com/admin?pass=xxx
-/*
 	private static String jdbcPass = "" ;
 	private static String jdbcMachine = "" ;
 	private static String jdbcDatabase = "" ;
 	private static String jdbcUser = "" ;
-*/
-
-	private static String jdbcPass = "a1b7022433ceb48f90e2759a4319f73d3af2bbdee4f214477c90588caf8ae71f" ;
-	private static String jdbcMachine = "ec2-54-246-121-32.eu-west-1.compute.amazonaws.com" ;
-	private static String jdbcDatabase = "d6v79l0erm7t35" ;
-	private static String jdbcUser = "rxfftsrckuwnsp" ;
 
 	private static String jdbcUrl = "jdbc:postgresql://" + jdbcMachine + ":5432/" + jdbcDatabase + "?user=" + jdbcUser + "&password=" + jdbcPass + "&sslmode=require" ;
 	private static String saut_de_ligne = "\n" ;
 
-	static Connection connection = null ;
+	static Connection cnx = null ;
 	static Statement stmt = null ;
 	static PreparedStatement pstmt = null ;
 	static ResultSet resultSet = null ;
@@ -52,7 +41,7 @@ public class txnscript
 		try
 		{
 			// jdbcUrl = System.getenv("JDBC_DATABASE_URL");
-			connection = DriverManager.getConnection(jdbcUrl);
+			cnx = DriverManager.getConnection(jdbcUrl);
 		}
 		catch (Exception e)
 		{
@@ -125,7 +114,7 @@ public class txnscript
 
 		try
 		{
-				PreparedStatement pstmt = connection.prepareStatement(sql) ;
+				PreparedStatement pstmt = cnx.prepareStatement(sql) ;
 				pstmt.setString(1, nom);
 				pstmt.setDouble(2, codePostal);
 				pstmt.executeUpdate();
@@ -149,7 +138,7 @@ public class txnscript
 
 		try
 		{
-			PreparedStatement preparedStatement = connection.prepareStatement(sql) ;
+			PreparedStatement preparedStatement = cnx.prepareStatement(sql) ;
 			resultSet = preparedStatement.executeQuery();
 
 			while (resultSet.next())
@@ -180,7 +169,7 @@ public class txnscript
 
 		try
 		{
-			PreparedStatement preparedStatement = connection.prepareStatement(sql) ;
+			PreparedStatement preparedStatement = cnx.prepareStatement(sql) ;
 			preparedStatement.setInt(1, searchedCodePostal);
 			ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -213,7 +202,7 @@ public class txnscript
 
 		try
 		{
-				PreparedStatement pstmt = connection.prepareStatement(sql) ;
+				PreparedStatement pstmt = cnx.prepareStatement(sql) ;
 				pstmt.setString(1, nom);
 				pstmt.setDouble(2, codePostal);
 				pstmt.setInt(3, id);
@@ -283,10 +272,10 @@ public class txnscript
 
 		try
 		{
-			if(connection!=null)
+			if(cnx!=null)
 			{
-				connection.close();
-				connection=null;
+				cnx.close();
+				cnx=null;
 			}
 		}
 		catch (SQLException e)
