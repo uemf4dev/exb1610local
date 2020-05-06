@@ -1,0 +1,11 @@
+jobs:
+  build:
+    runs-on: ubuntu-16.04
+    name: Java ${{ matrix.java }} samplesteps:
+- uses: actions/checkout@v2
+- uses: actions/setup-java@v1
+  with:
+    java-version: '9.0.4' # The JDK version to make available on the path.
+    java-package: jdk # (jre, jdk, or jdk+fx) - defaults to jdk
+    architecture: x64 # (x64 or x86) - defaults to x64
+- run: java -cp ".\postgresql-42.2.5.jar:." simplissimeLocal
