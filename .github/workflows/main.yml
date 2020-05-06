@@ -18,4 +18,4 @@ jobs:
         java-version: '9.0.4' # The JDK version to make available on the path.
         java-package: jdk # (jre, jdk, or jdk+fx) - defaults to jdk
         architecture: x64 # (x64 or x86) - defaults to x64
-    - run: javac -cp ".\postgresql-42.2.5.jar;commons-cli-1.4.jar;." simplissimeCmdline.java
+    - run: javac -cp ".\postgresql-42.2.5.jar;.\commons-cli-1.4.jar;." simplissimeCmdline.java
