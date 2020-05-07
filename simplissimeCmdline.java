@@ -24,7 +24,8 @@ public class simplissimeCmdline {
             opt.addOption("u", false, "cr[U]d : mettre a jour une ville avec l'id, le nom et le code postal > simplissimeCmdline -u -id 21 -nom MARRAKECH -cp 40160");
             opt.addOption("d", false, "cru[D] : effacer une ville en fonction du parametre fourni (id, nom, code postal)");
             opt.addOption("l", false, "lister tous les enregistrements de la table villes");
-            opt.addOption("e", false, "ecraser la table villes");
+            opt.addOption("v", false, "vérifier les acces a la base (pilote, ...)");
+            opt.addOption("z", false, "ecraser la table villes");
             opt.addOption("nom", true, "nom de la ville" );
             opt.addOption("cp", true, "code postal de la ville" );
             opt.addOption("id", true, "identifiant de la ville" );
@@ -56,7 +57,7 @@ public class simplissimeCmdline {
             }
 
 			// java -cp ".\postgresql-42.2.5.jar;commons-cli-1.4.jar;." simplissimeCmdline -e
-            if ( cl.hasOption('e') )
+            if ( cl.hasOption('z') )
 			{
 					System.out.println( "\n\nEcraser table villes \n" ) ;
 					
@@ -66,6 +67,17 @@ public class simplissimeCmdline {
 					// display = txn.list () ;
 					// System.out.println( display ) ;
             }
+
+
+            if ( cl.hasOption('v') )
+			{
+					System.out.println( "\n\nVerifier acces a la base \n" ) ;
+					
+					boolean bCheck = txn.check () ; 
+					System.out.println( display ) ;
+            }
+
+
 			
 			// java -cp ".\postgresql-42.2.5.jar;commons-cli-1.4.jar;." simplissimeCmdline -l
             if ( cl.hasOption('l') )

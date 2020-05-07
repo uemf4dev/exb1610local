@@ -22,40 +22,96 @@ public class txnscript
 	
 	// coller ici les 4 lignes obtenues sur https://jdbc4uemf.herokuapp.com/admin?pass=xxx
 /*
-	private static String jdbcPass = "" ;
+	private static String jdbcHerokuMachine = "" ;
+	private static String jdbcHerokuDatabase = "" ;
+	private static String jdbcHerokuUser = "" ;
+	private static String jdbcHerokuPass = "" ;
+*/
+
+// exemple HEROKU
+	private static String jdbcHerokuMachine = "ec2-54-246-121-32.eu-west-1.compute.amazonaws.com" ;
+	private static String jdbcHerokuDatabase = "d6v79l0erm7t35" ;
+	private static String jdbcHerokuUser = "rxfftsrckuwnsp" ;
+	private static String jdbcHerokuPass = "a1b7022433ceb48f90e2759a4319f73d3af2bbdee4f214477c90588caf8ae71f" ;
+
+// exemple MYSQL LOCAL
+	private static String jdbcMysqlMachine = "localhost" ;
+	private static String jdbcMysqlDatabase = "exb1610" ;
+	private static String jdbcMysqlUser = "root" ;
+	private static String jdbcMysqlPass = "tsimiski4" ;
+	private static String jdbcMysqlIntricacies = "zeroDateTimeBehavior=CONVERT_TO_NULL&serverTimezone=UTC" ;
+	
+	private static String jdbcUrl ;
+	
 	private static String jdbcMachine = "" ;
 	private static String jdbcDatabase = "" ;
 	private static String jdbcUser = "" ;
-*/
-	private static String jdbcPass = "a1b7022433ceb48f90e2759a4319f73d3af2bbdee4f214477c90588caf8ae71f" ;
-	private static String jdbcMachine = "ec2-54-246-121-32.eu-west-1.compute.amazonaws.com" ;
-	private static String jdbcDatabase = "d6v79l0erm7t35" ;
-	private static String jdbcUser = "rxfftsrckuwnsp" ;
+	private static String jdbcPass = "" ;	
 	
-	
-	private static String jdbcUrl = "jdbc:postgresql://" + jdbcMachine + ":5432/" + jdbcDatabase + "?user=" + jdbcUser + "&password=" + jdbcPass + "&sslmode=require" ;
-	private static String saut_de_ligne = "\n" ;
-
 	static Connection cnx = null ;
 	static Statement stmt = null ;
 	static PreparedStatement pstmt = null ;
 	static ResultSet resultSet = null ;
 	// private static insaLogger logger = insaLogger.getLogger(txnscript.class);
+	private static String saut_de_ligne = "\n" ;
 	
     private txnscript()
     {
-		// recuperer la JDBC URL
-		try
+		// identifier le pilote charge
+		boolean bCheckMySQL = checkMySQL () ;
+		if ( bCheckMySQL == true )
 		{
-			// jdbcUrl = System.getenv("JDBC_DATABASE_URL");
-			cnx = DriverManager.getConnection(jdbcUrl);
-		}
-		catch (Exception e)
-		{
-			// logger.error ( "JDBC_DATABASE_URL : " + jdbcUrl ) ;
-			
-		}   
+			try
+			{
+				jdbcMachine = jdbcMysqlMachine ;
+				jdbcPass = jdbcMysqlPass ;
+				jdbcDatabase = jdbcMysqlDatabase ;
+				jdbcUser = jdbcMysqlUser ;
 
+				jdbcUrl = "jdbc:mysql://" + jdbcMachine + ":3306/" + jdbcDatabase ;
+			
+				// https://downloads.mysql.com/docs/connector-j-8.0-en.a4.pdf
+				// https://www.developpez.net/forums/d1876029/java/general-java/server-time-zone-non-reconnu/
+				jdbcUrl = jdbcUrl + "?user=" + jdbcUser + "&password=" + jdbcPass + "&" + jdbcMysqlIntricacies ;
+				
+				// jdbcUrl = "jdbc:mysql://root:tsimiski4@localhost:3306/exb1610" ;
+				cnx = DriverManager.getConnection(jdbcUrl);
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+				// logger.error ( "JDBC_DATABASE_URL : " + jdbcUrl ) ;
+				System.out.println( "txnscript - Probleme de connection MySQL : " + jdbcUrl + " user = " + jdbcUser + " - pass = " + jdbcPass  );
+			}   
+		}
+		
+		boolean bCheckPostgreSQL = checkPostgreSQL () ;
+		if ( bCheckPostgreSQL == true )
+		{
+			jdbcUrl = System.getenv("JDBC_DATABASE_URL");
+			
+			if ( jdbcUrl == null )
+			{
+				// execution de simplissimeCmdline hors de HEROKU (local ou Github Actions)
+				
+				jdbcMachine = jdbcHerokuMachine ;
+				jdbcPass = jdbcHerokuPass ;
+				jdbcDatabase = jdbcHerokuDatabase ;
+				jdbcUser = jdbcHerokuUser ;
+				jdbcUrl = "jdbc:postgresql://" + jdbcMachine + ":5432/" + jdbcDatabase + "?user=" + jdbcUser + "&password=" + jdbcPass + "&sslmode=require" ;
+			}
+			
+			try
+			{
+				cnx = DriverManager.getConnection(jdbcUrl);
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+				// logger.error ( "JDBC_DATABASE_URL : " + jdbcUrl ) ;
+				System.out.println( "txnscript - Probleme de connection PostgreSQL : " + jdbcUrl );
+			}   
+		}
     }   
 
 	public static String getJdbcUrl ()
@@ -66,6 +122,52 @@ public class txnscript
     public static txnscript getTxnscript() {
         return new txnscript();
     }
+
+
+
+    public static boolean checkPostgreSQL()
+    {
+		try
+		{
+				Class.forName("org.postgresql.Driver");
+			return true ;
+		}
+		catch (ClassNotFoundException e)
+		{
+			// System.out.println( "\n\nLa bibliotheque PostgreSQL est absente !");
+			// e.printStackTrace();
+			return false ;
+		}
+		catch (Exception e) {
+			System.out.println( "\nException\n" ) ;
+			e.printStackTrace();
+			return false ;
+		}
+	}
+
+
+	
+    public static boolean checkMySQL()
+    {
+		// mySQL library
+		// https://dev.mysql.com/doc/connector-j/5.1/en/connector-j-usagenotes-connect-drivermanager.html
+		try
+		{
+				Class.forName("com.mysql.cj.jdbc.Driver");
+				return true ;
+		}
+		catch (ClassNotFoundException e)
+		{
+			// System.out.println( "\n\nClassNotFoundException\n" ) ;
+			// e.printStackTrace();
+			return false ;
+		}
+		catch (Exception e) {
+			System.out.println( "\nException\n" ) ;
+			e.printStackTrace();
+			return false ;
+		}
+	}
 	
     public static boolean check()
     {
@@ -81,16 +183,32 @@ public class txnscript
 			out.append("<p>Le mot de passe pour accéder à la base est vide. Connectez-vous à https://jdbc4uemf.herokuapp.com/hello?pass=xxx pour avoir les 4 paramètres de connexion de VOTRE base de données.</p>" ) ;
 		}
 		
-		// vérifier dispo de la library postgreSQL
-		try
+		// vérifier dispo d'une bibliotheque mettant en oeuvre l'interface JDBC
+		//  postgreSQL library
+
+
+
+		boolean bCheckMySQL = checkMySQL () ;
+		if ( bCheckMySQL == false )
 		{
-				Class.forName("org.postgresql.Driver");
-			}
-		catch (ClassNotFoundException e)
-		{
-				out.append("<p>La bibliothèque PostgreSQL est absente !</p>");
-				e.printStackTrace();
+			System.out.println( "Le pilote MySQL est absent !");
 		}
+		else
+		{
+			System.out.println( "Test connection avec pilote MySQL!");
+		}
+			
+		boolean bCheckPostgreSQL = checkPostgreSQL () ;
+		if ( bCheckPostgreSQL == false )
+		{
+			System.out.println( "Le pilote PostgreSQL est absent !");
+		}
+		else
+		{
+			System.out.println( "Test connection avec pilote PostgreSQL.");
+		}
+			
+	
 
 					
 		try
