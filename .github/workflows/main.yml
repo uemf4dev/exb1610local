@@ -21,5 +21,5 @@ jobs:
     - run: javac -cp "commons-cli-1.4.jar:." simplissimeCmdline.java  txnscript.java jdbcUnitUtilities.java
     - run: javac -cp "junit-4.13.jar:hamcrest-2.2.jar:." unitTestTxnScript.java jdbcUnitUtilities.java  
     - run: java -cp "junit-4.13.jar:hamcrest-2.2.jar:postgresql-42.2.5.jar:." org.junit.runner.JUnitCore unitTestTxnScript
-    - run: java -cp "postgresql-42.2.5.jar:commons-cli-1.4.jar:." simplissimeCmdline
+    - run: java -cp "postgresql-42.2.5.jar:commons-cli-1.4.jar:." simplissimeCmdline -l
       
