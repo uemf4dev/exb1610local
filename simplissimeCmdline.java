@@ -5,6 +5,9 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.ParseException;
 
+// import java.util.Arrays ;
+import java.lang.reflect.Array;
+
 public class simplissimeCmdline {
 
 	private static txnscript txn = null ;
@@ -74,8 +77,12 @@ public class simplissimeCmdline {
 			
 			
 			// dans le cas ou il n y a aucune option, argument sur la ligne de commande
+			// on applique une suite logique d'appels aux fonctions de txnScript pour tout voir l'ensemble des fonctionnalités.
 			Option[] opts = cl.getOptions();			
-            if (opts == null) 
+			// int size = opts[].length() ;
+			int nbOfOptions = Array.getLength(opts);
+					
+            if (nbOfOptions == 0) 
 			{
 				// pot-pourri de méthodes du txnScript
 				boolean isOk = txn.check() ;

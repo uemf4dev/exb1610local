@@ -32,18 +32,16 @@ public class jdbcUnitUtilities
 
     private jdbcUnitUtilities( String jdbcUrl )
     {
-	// recuperer la JDBC URL
-	try {
-		// jdbcUrl = System.getenv("JDBC_DATABASE_URL");
-		connection = DriverManager.getConnection(jdbcUrl);
-	}
-	catch (Exception e)
-	{
-		// logger.error ( "JDBC_DATABASE_URL : " + jdbcUrl ) ;
-		
-	}   
-	// ouvrir une connection
-
+		// recuperer la JDBC URL
+		try {
+			// jdbcUrl = System.getenv("JDBC_DATABASE_URL");
+			connection = DriverManager.getConnection(jdbcUrl);
+		}
+		catch (Exception e)
+		{
+			// logger.error ( "JDBC_DATABASE_URL : " + jdbcUrl ) ;
+			
+		}   
     }   
 
     public static jdbcUnitUtilities getJdbcUnitUtilities( String jdbcUrl ) {
